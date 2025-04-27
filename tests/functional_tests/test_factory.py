@@ -1,8 +1,15 @@
 from datetime import datetime
 
+import pytest
 from fastapi.testclient import TestClient
 
+from tests.utils.app_factory import app
 from tests.utils.jwt import generate_jwt
+
+
+@pytest.fixture(scope="session")
+def client():
+    yield TestClient(app)
 
 
 def test_no_token(client: TestClient, openid_config, jwks_config):

@@ -1,15 +1,8 @@
 from unittest.mock import patch
 
 import pytest
-from fastapi.testclient import TestClient
 
-from .utils.app import app
 from .utils.jwt import create_jwks
-
-
-@pytest.fixture(scope="session")
-def client():
-    yield TestClient(app)
 
 
 @pytest.fixture
