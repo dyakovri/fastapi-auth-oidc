@@ -12,7 +12,7 @@ description = "FastAPI Auth OpenID Connect"
 readme = "README.md"
 requires-python = ">=3.11"
 keywords = []
-license = {text = "Proprientary"}
+license = {text = "BSD 3-Clause"}
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",

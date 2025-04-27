@@ -1,0 +1,51 @@
+name: Build and publish whl
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-push-image:
+    name: Build and push
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/catthehacker/ubuntu:act-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        shell: bash
+        run: |
+          echo 'Setup ssh key'
+          eval `ssh-agent -s`
+          ssh-add - <<< '${{ secrets.SSH_KEY }}'
+
+          echo 'Setup known_hosts'
+          mkdir -p ~/.ssh && touch  ~/.ssh/known_hosts
+          ssh-keyscan -p 222 git.dyakov.space > ~/.ssh/known_hosts
+          chmod 600  ~/.ssh/known_hosts
+
+          echo 'Checkout repository'
+          git clone 'ssh://git@git.dyakov.space:222/${{ gitea.repository }}.git' '/workspace/${{ gitea.repository }}'
+          cd /workspace/${{ gitea.repository }}
+
+      - name: Setup Python
+        uses: https://github.com/actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies and build package
+        run: |
+          python -m ensurepip
+          python -m pip install -U pip build --user
+          python -m build --wheel --sdist --outdir dist/
+
+      - name: Publish a Python distribution to PyPI
+        uses: https://github.com/pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
+          skip-existing: true
