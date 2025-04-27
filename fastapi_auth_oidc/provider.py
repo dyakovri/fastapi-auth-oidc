@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -5,6 +6,7 @@ from fastapi import Request
 from fastapi.openapi.models import APIKey, APIKeyIn
 from fastapi.security.http import HTTPBearer
 from jose import ExpiredSignatureError, JWTError, jwt
+import requests
 from typing_extensions import Annotated, Doc
 
 from .exceptions import UnauthenticatedException
@@ -20,26 +22,9 @@ logger = logging.getLogger(__name__)
 class OIDCAuthProvider(HTTPBearer):
     def __init__(
         self,
-        auto_error: Annotated[
-            bool,
-            Doc(
-                """
-                By default, if the HTTP Bearer token is not provided (in an
-                `Authorization` header), `HTTPBearer` will automatically cancel the
-                request and send the client an error.
-
-                If `auto_error` is set to `False`, when the HTTP Bearer token
-                is not available, instead of erroring out, the dependency result will
-                be `None`.
-
-                This is useful when you want to have optional authentication.
-
-                It is also useful when you want to have authentication that can be
-                provided in one of multiple optional ways (for example, in an HTTP
-                Bearer token or in a cookie).
-                """
-            ),
-        ] = True,
+        auto_error: bool = True,
+        force_check: bool = False,
+        fetch_userdata: bool = False,
         *,
         factory: "OIDCAuthFactory" = None,
     ):
@@ -51,6 +36,8 @@ class OIDCAuthProvider(HTTPBearer):
             description="OpenID JWT token auth",
             auto_error=auto_error,
         )
+        self._force_check = force_check
+        self._fetch_userdata = fetch_userdata
         self._factory = factory
 
     @staticmethod
@@ -87,23 +74,56 @@ class OIDCAuthProvider(HTTPBearer):
         except ExpiredSignatureError as exc:
             if self.auto_error:
                 raise UnauthenticatedException("Signature has expired") from exc
-            else:
-                return None
+            return None
         except JWTError as exc:
             if self.auto_error:
                 raise UnauthenticatedException("Can't verify key") from exc
-            else:
-                return None
+            return None
         except Exception as exc:
             if self.auto_error:
                 raise UnauthenticatedException("Unexpected exception: " + str(exc)) from exc
-            else:
-                return None
+            return None
 
-    async def __call__(self, request: Request) -> dict[str, Any] | None:
+    def _get_userdata(self, token: str) -> str | None:
+        userdata_response = requests.get(self._factory.userinfo_url, headers={"Authorization": f"Bearer {token}"})
+        if not userdata_response.ok():
+            if self.auto_error:
+                raise UnauthenticatedException("Can't verify key")
+            return None
+        return userdata_response.text
+
+    def _decode_userdata(self, userdata_response: str) -> dict[str, Any]:
+        userdata_response_dict = None
+        try:
+            userdata_response_dict = json.loads(userdata_response)
+        except json.JSONDecodeError:
+            logger.debug("userdata response not json formatter")
+        try:
+            userdata_response_dict = self._decode_jwt(userdata_response)
+        except Exception:
+            logger.debug("userdata response not jwt formatter")
+        if not userdata_response_dict:
+            if self.auto_error:
+                raise UnauthenticatedException("No userdata response")
+            return None
+        return userdata_response_dict
+
+    def __call__(self, request: Request) -> dict[str, Any] | None:
+        # Check token
         _, token = self._extract_creds(request.headers.get("Authorization"))
         if token is None:
             logger.debug("token in None")
             return None
         user_jwt_info = self._decode_jwt(token)
+
+        # Force check and userdata
+        if self._force_check or self._fetch_userdata:
+            userdata_response = self._get_userdata(token)
+            if userdata_response is None:
+                return None
+
+            # Decode userdata
+            if self._fetch_userdata:
+                user_jwt_info = self._decode_userdata(userdata_response)
+
         return user_jwt_info

@@ -3,7 +3,7 @@ from datetime import datetime
 import pytest
 from fastapi.testclient import TestClient
 
-from tests.utils.app_factory import app
+from tests.utils.app import app
 from tests.utils.jwt import generate_jwt
 
 

@@ -79,15 +79,18 @@ def create_jwks() -> dict[str, str]:
     }
 
 
-def generate_jwt(user_id: int, create_ts: datetime, expire_ts: datetime) -> str:
+def generate_jwt(user_id: int, create_ts: datetime, expire_ts: datetime, other_claims: dict[str, Any] = None) -> str:
+    other_claims = other_claims or {}
+    claims = {
+        "sub": f"{user_id}",
+        "iss": f"test",
+        "iat": int(create_ts.timestamp()),
+        "exp": int(expire_ts.timestamp()),
+    }
+    claims.update(other_claims)
     jwt_settings = ensure_jwt_settings()
     return jwt.encode(
-        {
-            "sub": f"{user_id}",
-            "iss": f"test",
-            "iat": int(create_ts.timestamp()),
-            "exp": int(expire_ts.timestamp()),
-        },
+        claims,
         jwt_settings.pem_private_key,
         algorithm="RS256",
     )
