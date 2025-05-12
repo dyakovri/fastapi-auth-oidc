@@ -1,8 +1,6 @@
-from pydantic_settings import BaseSettings
+import os
 
-
-class Settings(BaseSettings):
-    OIDC_CONFIGURATION_URI: str | None = None
-    OIDC_JWKS_URI: str | None = None
-    OIDC_USERINFO_URI: str | None = None
-    OIDC_ISSUER: str | None = None
+OIDC_CONFIGURATION_URI: str | None = os.getenv("OIDC_CONFIGURATION_URI", None)
+OIDC_JWKS_URI: str | None = os.getenv("OIDC_JWKS_URI", None)
+OIDC_USERINFO_URI: str | None = os.getenv("OIDC_USERINFO_URI", None)
+OIDC_ISSUER: str | None = os.getenv("OIDC_ISSUER", None)

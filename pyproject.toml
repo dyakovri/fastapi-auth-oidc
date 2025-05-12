@@ -21,7 +21,6 @@ classifiers = [
 ]
 dependencies = [
     "fastapi",
-    "pydantic-settings",
     "requests",
     "cryptography",
     "python-jose[cryptography]",
