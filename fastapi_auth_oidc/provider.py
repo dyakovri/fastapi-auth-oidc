@@ -7,7 +7,6 @@ from fastapi.openapi.models import APIKey, APIKeyIn
 from fastapi.security.http import HTTPBearer
 from jose import ExpiredSignatureError, JWTError, jwt
 import requests
-from typing_extensions import Annotated, Doc
 
 from .exceptions import UnauthenticatedException
 

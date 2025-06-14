@@ -8,6 +8,10 @@ from .provider import OIDCAuthProvider
 
 
 class OIDCAuthFactory:
+    """Creates preconfigured classes for using :class:`fastapi.security.base.SecurityBase`
+    as dependencies in FastAPI
+    """
+
     def __init__(
         self,
         configuration_uri: str | None = None,
@@ -17,6 +21,22 @@ class OIDCAuthFactory:
         *,
         scheme_name: str = "OIDC token",
     ):
+        """Creates a new instance of OIDC auth factory
+
+        :param configuration_uri: OIDC Configuration URI, typically
+            `yourdoman.tld/.well-known/openid-configuration`, defaults to `OIDC_CONFIGURATION_URI`
+            environment variable
+        :type configuration_uri: str | None, optional
+        :param jwks_uri: JWKS endpoint wuth public key data of the signing key, defaults
+            `OIDC_JWKS_URI` environment variable or `jwks_uri` value from configuration
+        :type jwks_uri: str | None, optional
+        :param userinfo_uri: _description_, defaults to None
+        :type userinfo_uri: str | None, optional
+        :param issuer: _description_, defaults to None
+        :type issuer: str | None, optional
+        :param scheme_name: _description_, defaults to "OIDC token"
+        :type scheme_name: str, optional
+        """
         self.scheme_name = scheme_name
         self._configuration_uri = configuration_uri
         self._jwks_uri = jwks_uri

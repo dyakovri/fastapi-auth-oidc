@@ -37,6 +37,7 @@ Changelog = "https://git.dyakov.space/dyakovri/fastapi-auth-oidc/releases"
 [project.optional-dependencies]
 style = ["black", "isort", "pydocstyle", "autoflake"]
 test = ["pytest", "pytest-cov", "pytest-mock", "httpx"]
+docs = ["mkdocstrings[python]>=0.18", "mkdocs-material"]
 
 [tool.setuptools]
 packages = ["fastapi_auth_oidc"]

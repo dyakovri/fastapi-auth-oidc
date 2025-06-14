@@ -1,3 +1,5 @@
+"""Yet another OIDC provider for FastAPI
+"""
 from .factory import OIDCAuthFactory
 
 

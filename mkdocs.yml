@@ -1,0 +1,12 @@
+site_name: Fastapi Auth OIDC
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [fastapi_auth_oidc]
+          options:
+            docstring_style: sphinx
+  - search:
+
+theme:
+  name: "material"
