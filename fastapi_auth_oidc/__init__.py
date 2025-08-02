@@ -1,6 +1,4 @@
-from .factory import OIDCAuthFactory
+from .provider import OIDCProvider
+from .types import IDToken
 
-
-__version__ = '0.1.2'
-
-OIDCAuth = OIDCAuthFactory()
+__version__ = '0.1.3'
