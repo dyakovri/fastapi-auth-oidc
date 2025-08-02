@@ -83,7 +83,7 @@ def generate_jwt(user_id: int, create_ts: datetime, expire_ts: datetime, other_c
     other_claims = other_claims or {}
     claims = {
         "sub": f"{user_id}",
-        "iss": f"test",
+        "iss": "test",
         "iat": int(create_ts.timestamp()),
         "exp": int(expire_ts.timestamp()),
     }

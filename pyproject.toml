@@ -23,6 +23,7 @@ dependencies = [
     "fastapi",
     "cachetools>=6.1.0",
     "requests",
+    "python-jose[cryptography]>=3.5.0",
 ]
 dynamic = ["version"]
 
@@ -33,8 +34,13 @@ Repository = "https://git.dyakov.space/dyakovri/fastapi-auth-oidc"
 Issues = "https://git.dyakov.space/dyakovri/fastapi-auth-oidc/issues"
 Changelog = "https://git.dyakov.space/dyakovri/fastapi-auth-oidc/releases"
 
-[project.optional-dependencies]
-dev = ["pytest", "pytest-cov", "pytest-mock", "httpx"]
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "httpx"
+]
 
 [tool.setuptools]
 packages = ["fastapi_auth_oidc"]
