@@ -1,4 +1,7 @@
+"""OIDC Authentication utilities."""
+
 import logging
+from typing import Any
 
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials
@@ -20,9 +23,18 @@ security = HTTPBearer(
     description="Token from OIDC provider",
     auto_error=False,
 )
+Credentials = Annotated[HTTPAuthorizationCredentials | None, Depends(security)]
 
 
 class OIDCProvider:
+    """Data provider and OIDC authentication utilities.
+
+    Used for:
+    - obtaining data about OIDC provider,
+    - user authentication in FastAPI,
+    - manual validation and decoding of tokens.
+    """
+
     def __init__(
         self,
         *,
@@ -33,6 +45,16 @@ class OIDCProvider:
         issuer: str | None = None,
         token_type: type[IDToken] = IDToken,
     ):
+        """Создание провайдера учетных данных.
+
+        Args:
+            configuration_uri (str): OIDC configuration URI.
+            client_id (str): Provider Client ID.
+            jwks_uri (str | None, optional): URI for publik keys provider. If `None` will be taken from configuration.
+            audience (str | None, optional): OIDC audience claim value. Defaults to `client_id`.
+            issuer (str | None, optional): OIDC token issuer claim value. If `None` will be taken from configuration.
+            token_type (type[IDToken], optional): _description_. Defaults to `IDToken`.
+        """
         self._settings = OidcSettingsProvider(
             configuration_uri=configuration_uri,
             client_id=client_id,
@@ -51,7 +73,15 @@ class OIDCProvider:
     configuration = property(lambda self: self._settings.configuration)
     jwks = property(lambda self: self._settings.jwks)
 
-    def decode_token(self, token: str):
+    def decode_token(self, token: str) -> dict[str, Any]:
+        """Returns decoded token with claims validation.
+
+        Args:
+            token (str): token to be validated and decoded.
+
+        Returns:
+            dict[str, Any]: decoded token
+        """
         return jwt.decode(
             token=token,
             key=self._settings.jwks,
@@ -61,7 +91,14 @@ class OIDCProvider:
             options={"verify_at_hash": False},
         )
 
-    def __call__(self, creds: Annotated[HTTPAuthorizationCredentials | None, Depends(security)]):
+    def __call__(self, creds: Credentials):
+        """FastAPI authentication dependency.
+
+        Takes bearer token, decodes it as JWT and returns IDToken model. Bearer token should be in `Authorization`
+        header with `Bearer` scheme.
+
+        **If no Authorization header is present, returns `None`!**
+        """
         logger.debug("OIDCProvider called")
         if creds is None:
             return None

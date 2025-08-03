@@ -1,3 +1,5 @@
+"""Test OIDCProvider as data provider."""
+
 from unittest.mock import PropertyMock
 
 import pytest

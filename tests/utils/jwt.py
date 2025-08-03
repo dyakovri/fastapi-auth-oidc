@@ -33,9 +33,9 @@ def to_base64url(value: int) -> str:
     """Функция для преобразования числа в Base64URL"""
     # Преобразуем число в байты
     byte_length = (value.bit_length() + 7) // 8
-    byte_data = value.to_bytes(byte_length, byteorder='big')
+    byte_data = value.to_bytes(byte_length, byteorder="big")
     # Кодируем в Base64 и удаляем padding (=)
-    return base64.urlsafe_b64encode(byte_data).rstrip(b'=').decode('utf-8')
+    return base64.urlsafe_b64encode(byte_data).rstrip(b"=").decode("utf-8")
 
 
 @lru_cache(1)

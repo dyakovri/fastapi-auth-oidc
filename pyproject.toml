@@ -53,5 +53,21 @@ target-version = "py313"
 line-length = 120
 indent-width = 4
 
+[tool.ruff.lint]
+select = [
+    # Pyflakes
+    "F",
+    # Pycodestyle
+    "E",
+    "W",
+    # isort
+    "I001",
+    # Pydocstyle
+    "D",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
