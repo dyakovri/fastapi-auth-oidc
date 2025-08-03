@@ -6,9 +6,9 @@ from datetime import datetime
 from functools import lru_cache
 from typing import Any
 
-from jose import jwt
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
+from jose import jwt
 
 
 @dataclass
